@@ -4,7 +4,7 @@
 
   <groupId>com.zendesk</groupId>
   <artifactId>maxwell</artifactId>
-  <version>1.41.1</version>
+  <version>1.41.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>maxwell</name>
@@ -371,6 +371,12 @@
         <artifactId>opencensus-exporter-stats-stackdriver</artifactId>
         <version>${opencensus.version}</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>druid</artifactId>
+      <version>1.2.22</version>
+    </dependency>
 
     <!-- test -->
     <dependency>
@@ -430,6 +436,7 @@
           <argLine>--add-opens java.base/java.util=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
+      <!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
@@ -444,6 +451,7 @@
           </execution>
         </executions>
       </plugin>
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>

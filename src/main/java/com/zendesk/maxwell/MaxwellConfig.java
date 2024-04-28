@@ -637,6 +637,11 @@ public class MaxwellConfig extends AbstractConfig {
 	public int binlogEventQueueSize;
 
 	/**
+	 * sync mysql producer
+	 */
+	public MaxwellMysqlConfig syncMysql;
+
+	/**
 	 * Build a default configuration object.
 	 */
 	public MaxwellConfig() { // argv is only null in tests
@@ -650,6 +655,7 @@ public class MaxwellConfig extends AbstractConfig {
 		this.gtidMode = false;
 		this.bufferedProducerSize = 200;
 		this.outputConfig = new MaxwellOutputConfig();
+		this.syncMysql = new MaxwellMysqlConfig();
 		setup(null, null); // setup defaults
 	}
 
@@ -993,6 +999,20 @@ public class MaxwellConfig extends AbstractConfig {
 
 		parser.accepts( "help", "display help" ).withOptionalArg().forHelp();
 
+		parser.separator();
+
+		parser.accepts( "syncmysql_host", "sync mysql host" )
+			.withRequiredArg();
+		parser.accepts( "syncmysql_user", "username for sync mysql" )
+			.withRequiredArg();
+		parser.accepts( "syncmysql_password", "password for sync mysql" )
+			.withRequiredArg();
+		parser.accepts( "syncmysql_port", "port for sync mysql" )
+			.withRequiredArg().ofType(Integer.class);
+		parser.accepts( "syncmysql_jdbc_options", "sync mysql jdbc connection options: key1=val1&key2=val2" )
+			.withRequiredArg();
+		parser.accepts( "syncmysql_database", "database name for sync mysql" )
+			.withRequiredArg();
 
 		return parser;
 	}
@@ -1225,6 +1245,8 @@ public class MaxwellConfig extends AbstractConfig {
 		this.replicationReconnectionRetries = fetchIntegerOption("replication_reconnection_retries", options, properties, 1);
 
 		this.binlogEventQueueSize = fetchIntegerOption("binlog_event_queue_size", options, properties, BinlogConnectorReplicator.BINLOG_QUEUE_SIZE);
+		this.syncMysql   = parseMysqlConfig("syncmysql_", options, properties);
+		this.syncMysql.database  = fetchStringOption("syncmysql_database", options, properties, "");
 	}
 
 	private void setupEncryptionOptions(OptionSet options, Properties properties) {

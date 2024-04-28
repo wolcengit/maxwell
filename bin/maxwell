@@ -18,7 +18,7 @@ fi
 
 CLASSPATH="$CLASSPATH:$lib_dir/*"
 
-KAFKA_VERSION="2.7.0"
+KAFKA_VERSION="3.4.0"
 
 function use_kafka() {
 	wanted="$1"

@@ -76,6 +76,7 @@ public class MaxwellContext {
 	 */
 	public HealthCheckRegistry healthCheckRegistry;
 
+	private ConnectionPool syncMysqlConnectionPool;
 	/**
 	 * Create a runtime context from a configuration object
 	 * @param config Maxwell configuration
@@ -140,6 +141,11 @@ public class MaxwellContext {
 		this.healthCheckRegistry = config.healthCheckRegistry;
 		if ( this.healthCheckRegistry == null )
 			this.healthCheckRegistry = new HealthCheckRegistry();
+		syncMysqlConnectionPool = new C3P0ConnectionPool(
+			config.syncMysql.getConnectionURI(true),
+			config.syncMysql.user,
+			config.syncMysql.password
+		);
 	}
 
 	/**
@@ -296,6 +302,8 @@ public class MaxwellContext {
 
 			this.rawMaxwellConnectionPool.release();
 			this.rawMaxwellConnectionPool = null;
+			this.syncMysqlConnectionPool.release();
+			this.syncMysqlConnectionPool = null;
 
 			complete.set(true);
 		} catch (Exception e) {
@@ -558,6 +566,9 @@ public class MaxwellContext {
 			case "none":
 				this.producer = new NoneProducer(this);
 				break;
+			case "syncmysql":
+				this.producer = new SyncMysqlProducer(this);
+				break;
 			case "custom":
 				// if we're here we missed specifying producer factory
 				throw new RuntimeException("Please specify --custom_producer.factory!");
@@ -700,5 +711,18 @@ public class MaxwellContext {
 		}
 
 		return this.isMariaDB;
+	}
+	/**
+	 * Get the syncMysql pool
+	 * @return the syncMysql (connection to replicate from) connection pool
+	 */
+	public ConnectionPool getSyncMysqlConnectionPool() { return syncMysqlConnectionPool; }
+	/**
+	 * Get the a connection from the syncMysql pool
+	 * @return a connection to the syncMysql pool
+	 * @throws SQLException if we can't connect
+	 */
+	public Connection getSyncMysqlConnection() throws SQLException {
+		return this.syncMysqlConnectionPool.getConnection();
 	}
 }
